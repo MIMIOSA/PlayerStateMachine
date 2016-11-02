@@ -27,181 +27,6 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////、
 
-class Pole extends egret.DisplayObjectContainer {
-
-    public MyPhoto: egret.Bitmap;
-    private MySta: StaMac = new StaMac;
-    public MoveSpeed: number = 20;
-    public ChaTime: number = 150;
-    public Modle: number = 0;
-    public IdleAni: Array<egret.Texture> = new Array<egret.Texture>();
-    public MoveAni: Array<egret.Texture> = new Array<egret.Texture>();
-    public constructor() {
-        super();
-        this.MyPhoto = this.createBitmapByName("10000_png");
-        this.addChild(this.MyPhoto);
-        this.LoadAni();
-        this.anchorOffsetX = this.MyPhoto.width / 2;
-        this.anchorOffsetY = this.MyPhoto.height / 2;
-    }
-    private LoadAni() {
-        var texture: egret.Texture = RES.getRes("10000_png");
-        this.IdleAni.push(texture);
-        texture = RES.getRes("10001_png");
-        this.IdleAni.push(texture);
-        texture = RES.getRes("10002_png");
-        this.IdleAni.push(texture);
-        texture = RES.getRes("10003_png");
-        this.IdleAni.push(texture);
-        texture = RES.getRes("10004_png");
-        this.IdleAni.push(texture);
-        texture = RES.getRes("10005_png");
-        this.IdleAni.push(texture);
-        texture = RES.getRes("10006_png");
-        this.IdleAni.push(texture);
-        texture = RES.getRes("10007_png");
-        this.IdleAni.push(texture);
-        texture = RES.getRes("100002_png");
-        this.MoveAni.push(texture);
-        texture = RES.getRes("100012_png");
-        this.MoveAni.push(texture);
-        texture = RES.getRes("100022_png");
-        this.MoveAni.push(texture);
-        texture = RES.getRes("100032_png");
-        this.MoveAni.push(texture);
-        texture = RES.getRes("100042_png");
-        this.MoveAni.push(texture);
-        texture = RES.getRes("100052_png");
-        this.MoveAni.push(texture);
-        texture = RES.getRes("100062_png");
-        this.MoveAni.push(texture);
-        texture = RES.getRes("100072_png");
-        this.MoveAni.push(texture);
-    }
-
-    public PlayAni(Ani: Array<egret.Texture>) {
-
-        var count = 0;
-        var Bit = this.MyPhoto;
-        var M = this.Modle;
-        console.log("M:" + M);
-        var timer: egret.Timer = new egret.Timer(125, 0);
-        timer.addEventListener(egret.TimerEvent.TIMER, Play, this);
-        timer.start();
-
-        function Play() {
-            Bit.texture = Ani[count];
-            if (count < Ani.length - 1) {
-                count++;
-            }
-            else { count = 0; }
-            if (this.Modle != M) { console.log("tM:" + M + " nowM:" + this.Modle); timer.stop(); }
-        }
-
-    }
-
-    public Move(x: number, y: number) {
-
-        var MS: MoveSta = new MoveSta(x, y, this);
-        this.MySta.Reload(MS);
-
-    }
-
-    public Idle() {
-
-        var IS: IdleSta = new IdleSta(this);
-        this.MySta.Reload(IS);
-
-    }
-
-    /**
-         * 根据name关键字创建一个Bitmap对象。name属性请参考resources/resource.json配置文件的内容。
-         * Create a Bitmap object according to name keyword.As for the property of name please refer to the configuration file of resources/resource.json.
-         */
-    private createBitmapByName(name: string): egret.Bitmap {
-        var result = new egret.Bitmap();
-        var texture: egret.Texture = RES.getRes(name);
-        result.texture = texture;
-        return result;
-    }
-}
-
-interface Sta {
-    Load();
-    exit();
-
-}
-
-class MoveSta implements Sta {
-    private Tx: number;
-    private Ty: number;
-    private Player: Pole;
-    private timer: egret.Timer;
-    private LeastTime: number;
-    constructor(x: number, y: number, Player: Pole) {
-        this.Ty = y;
-        this.Tx = x;
-        this.Player = Player;
-
-    }
-
-    Load() {
-
-        this.Player.Modle++;
-        var xx = this.Tx - this.Player.x;
-        var yy = this.Ty - this.Player.y;
-        if (xx > 0) { this.Player.scaleX = 1; } else { this.Player.scaleX = -1; }
-        var zz = Math.pow(xx * xx + yy * yy, 0.5);
-        var time: number = zz / this.Player.MoveSpeed;
-        this.timer = new egret.Timer(50, time);
-        this.LeastTime = time;
-        this.timer.addEventListener(egret.TimerEvent.TIMER, () => {
-            this.Player.x += xx / time;
-            this.Player.y += yy / time;
-            this.LeastTime--;
-            if (this.LeastTime < 1) {
-                this.timer.stop();
-                //        this.Player.Modle=-1;
-                if (this.LeastTime > -10) { this.Player.Idle(); }//意味着是走停不是逼停
-            }
-        }, this);
-        this.timer.start();
-        this.Player.PlayAni(this.Player.MoveAni);
-    }
-    exit() {
-        this.LeastTime = -10;
-    }
-
-}
-class IdleSta implements Sta {
-    private Player: Pole;
-    constructor(Player: Pole) {
-        this.Player = Player;
-    }
-    Load() {
-        this.Player.Modle = 0;
-        this.Player.PlayAni(this.Player.IdleAni);
-
-    }
-    exit() {
-    }
-
-}
-class StaMac {
-    private nowSta: Sta;
-
-    public Reload(S: Sta): void {
-        if (this.nowSta) {
-            this.nowSta.exit();
-        }
-        this.nowSta = S;
-        this.nowSta.Load();
-    }
-}
-
-
-
-
 class Main extends egret.DisplayObjectContainer {
 
     /**
@@ -209,7 +34,7 @@ class Main extends egret.DisplayObjectContainer {
      * Process interface loading
      */
     private loadingView: LoadingUI;
-    private Player: Pole;
+    private Player: Role;
 
     public constructor() {
         super();
@@ -302,7 +127,7 @@ class Main extends egret.DisplayObjectContainer {
 
 
 
-        this.Player = new Pole();
+        this.Player = new Role();
         this.addChild(this.Player);
 
         this.Player.x = this.Player.y = 300;
@@ -328,7 +153,7 @@ class Main extends egret.DisplayObjectContainer {
      * 根据name关键字创建一个Bitmap对象。name属性请参考resources/resource.json配置文件的内容。
      * Create a Bitmap object according to name keyword.As for the property of name please refer to the configuration file of resources/resource.json.
      */
-     
+
     private createBitmapByName(name: string): egret.Bitmap {
         var result = new egret.Bitmap();
         var texture: egret.Texture = RES.getRes(name);
@@ -375,9 +200,27 @@ class Main extends egret.DisplayObjectContainer {
      * 切换描述内容
      * Switch to described content
      */
-   /** private changeDescription(textfield: egret.TextField, textFlow: Array<egret.ITextElement>): void {
-        textfield.textFlow = textFlow;
-    }*/
+    /** private changeDescription(textfield: egret.TextField, textFlow: Array<egret.ITextElement>): void {
+         textfield.textFlow = textFlow;
+     }*/
 }
+
+var config = [
+    { x: 1, y: 1, walkable: true, image: "road.jpg" },//配置文件？
+    { x: 1, y: 1, walkable: true, image: "road.jpg" }
+]
+
+var grid = new astar.Grid(8, 8);
+var container = new egret.DisplayObjectContainer();
+for (var i = 0; i <= config.length; i++) {
+
+    var tile = config[i];
+    var bitmap = new egret.Bitmap();
+    bitmap.texture = RES.getRes(tile.image);
+    bitmap.x = tile.x * 32;
+    bitmap.y = tile.y * 32;
+    grid.setWalkable(tile.x, tile.y, tile.walkable);
+}
+
 
 
