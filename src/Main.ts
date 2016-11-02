@@ -205,22 +205,6 @@ class Main extends egret.DisplayObjectContainer {
      }*/
 }
 
-var config = [
-    { x: 1, y: 1, walkable: true, image: "road.jpg" },//配置文件？
-    { x: 1, y: 1, walkable: true, image: "road.jpg" }
-]
-
-var grid = new astar.Grid(8, 8);
-var container = new egret.DisplayObjectContainer();
-for (var i = 0; i <= config.length; i++) {
-
-    var tile = config[i];
-    var bitmap = new egret.Bitmap();
-    bitmap.texture = RES.getRes(tile.image);
-    bitmap.x = tile.x * 32;
-    bitmap.y = tile.y * 32;
-    grid.setWalkable(tile.x, tile.y, tile.walkable);
-}
 
 
 
